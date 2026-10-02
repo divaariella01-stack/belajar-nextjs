@@ -5,6 +5,7 @@ import UserCard from "../../components/UserCard";
 import { HeartX } from "lucide-react";
 
 export default function FavoritesPage() {
+  // Tambahkan fallback default array [] agar tidak crash di server
   const { favorites = [] } = useFavorite() || {};
 
   return (
