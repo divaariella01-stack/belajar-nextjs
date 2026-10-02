@@ -1,6 +1,8 @@
 "use server";
 
-import { messages } from "../../lib/db";
+import { revalidatePath } from "next/cache";
+import { messages } from "../../lib/db"; // Sesuaikan relative path ke lib/db.js
+
 export async function submitContactForm(formData) {
   const name = formData.get("name");
   const email = formData.get("email");
@@ -10,13 +12,17 @@ export async function submitContactForm(formData) {
     return { success: false, error: "Semua field wajib diisi." };
   }
 
+  // Masukkan pesan baru ke array messages di lib/db.js
   messages.push({
-    id: Date.now(),
+    id: Date.now().toString(),
     name,
     email,
     message,
     createdAt: new Date().toISOString(),
   });
+
+  // Revalidate cache agar /messages langsung mendeteksi pesan baru
+  revalidatePath("/messages");
 
   return { success: true };
 }
