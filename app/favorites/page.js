@@ -8,11 +8,11 @@ export default function FavoritesPage() {
   const { favorites = [] } = useFavorite() || {};
 
   return (
-    <section className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-[#111827]">
+    <section className="mx-auto max-w-6xl px-6 py-12 text-white">
+      <h1 className="text-3xl font-bold tracking-tight text-white">
         Pengguna Favorit
       </h1>
-      <p className="mt-2 text-zinc-600">
+      <p className="mt-2 text-zinc-400 text-sm">
         Daftar anggota yang telah Anda simpan ke favorit.
       </p>
 

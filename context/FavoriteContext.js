@@ -2,54 +2,34 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 
-const FavoriteContext = createContext();
+const FavoriteContext = createContext(null);
 
 export function FavoriteProvider({ children }) {
   const [favorites, setFavorites] = useState([]);
 
-  // 1. Ambil data favorit dari API saat aplikasi/halaman dimuat
-  const fetchFavorites = async () => {
-    try {
-      const res = await fetch("/api/favorites");
-      if (res.ok) {
-        const data = await res.json();
-        setFavorites(data);
-      }
-    } catch (err) {
-      console.error("Gagal mengambil data favorit:", err);
-    }
-  };
-
   useEffect(() => {
+    async function fetchFavorites() {
+      try {
+        const res = await fetch("/api/favorites");
+        if (res.ok) {
+          const data = await res.json();
+          setFavorites(data);
+        }
+      } catch (err) {
+        console.error("Gagal fetch favorites:", err);
+      }
+    }
     fetchFavorites();
   }, []);
 
-  // 2. Simpan atau Hapus Favorit ke API Backend
-  const toggleFavorite = async (user) => {
+  const toggleFavorite = (user) => {
     if (!user || !user.id) return;
-
-    const exists = favorites.some((item) => String(item.id) === String(user.id));
-
-    try {
-      if (exists) {
-        // Hapus dari favorit di backend
-        await fetch(`/api/favorites/${user.id}`, {
-          method: "DELETE",
-        });
-      } else {
-        // Tambah ke favorit di backend
-        await fetch("/api/favorites", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(user),
-        });
-      }
-
-      // Ambil ulang data terbaru dari API agar state selalu relevan
-      await fetchFavorites();
-    } catch (error) {
-      console.error("Gagal memperbarui status favorit di API:", error);
-    }
+    setFavorites((prev) => {
+      const exists = prev.some((item) => String(item.id) === String(user.id));
+      return exists
+        ? prev.filter((item) => String(item.id) !== String(user.id))
+        : [...prev, user];
+    });
   };
 
   const isFavorite = (userId) => {
@@ -57,12 +37,20 @@ export function FavoriteProvider({ children }) {
   };
 
   return (
-    <FavoriteContext.Provider value={{ favorites, toggleFavorite, isFavorite, fetchFavorites }}>
+    <FavoriteContext.Provider value={{ favorites, toggleFavorite, isFavorite }}>
       {children}
     </FavoriteContext.Provider>
   );
 }
 
 export function useFavorite() {
-  return useContext(FavoriteContext);
+  const context = useContext(FavoriteContext);
+  if (!context) {
+    return {
+      favorites: [],
+      toggleFavorite: () => {},
+      isFavorite: () => false,
+    };
+  }
+  return context;
 }
