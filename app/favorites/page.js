@@ -5,7 +5,7 @@ import UserCard from "../../components/UserCard";
 import { HeartX } from "lucide-react";
 
 export default function FavoritesPage() {
-  const { favorites } = useFavorite();
+  const { favorites = [] } = useFavorite() || {};
 
   return (
     <section className="mx-auto max-w-6xl px-6 py-12">
