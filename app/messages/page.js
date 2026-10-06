@@ -1,5 +1,5 @@
 import { connection } from "next/server";
-import { supabase } from "../../lib/supabase";
+import { supabase } from "/lib/supabase";
 import { deleteMessageAction } from "./actions";
 
 export default async function MessagesPage() {
@@ -32,8 +32,10 @@ export default async function MessagesPage() {
               <div>
                 <p className="font-medium">{msg.name}</p>
                 <p className="text-sm text-muted-foreground">{msg.email}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{new Date(msg.created_at).toLocaleString()}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{msg.message}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Dikirim pada: {new Date(msg.created_at).toLocaleString()}
+                </p>
               </div>
               <form action={deleteMessageAction}>
                 <input type="hidden" name="id" value={msg.id} />
