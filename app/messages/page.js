@@ -30,7 +30,9 @@ export default async function MessagesPage() {
           messages.map((msg) => (
             <div key={msg.id} className="flex items-start justify-between gap-4 rounded-lg border p-4">
               <div>
-                <p className="font-medium">{msg.name} — {msg.email}</p>
+                <p className="font-medium">{msg.name}</p>
+                <p className="text-sm text-muted-foreground">{msg.email}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{new Date(msg.created_at).toLocaleString()}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{msg.message}</p>
               </div>
               <form action={deleteMessageAction}>
