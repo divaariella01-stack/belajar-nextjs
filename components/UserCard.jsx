@@ -50,7 +50,7 @@ export default function UserCard({ user }) {
         {/* Info Email & Perusahaan */}
         <div className="mt-4 space-y-1 text-xs text-[#888780]">
           <p className="font-medium text-[#2C2C2A]/80">{user.email}</p>
-          <p>{user.company_name || user.company || "Perusahaan / Komunitas"}</p>
+          <p>{user.company_name || user.company?.name || "Perusahaan / Komunitas"}</p>
         </div>
 
         {/* --- TAMPILAN NOTE / CATATAN PRIBADI --- */}
