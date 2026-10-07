@@ -26,14 +26,16 @@ export default function Navbar() {
   return (
     <header className="sticky top-4 z-50 mx-auto w-full max-w-5xl px-4">
       <nav className="flex items-center justify-between gap-4 rounded-full border border-white/10 bg-background/70 px-4 py-2 shadow-lg shadow-black/20 backdrop-blur-xl">
+        {/* Logo Brand */}
         <Link
           href="/"
-          className="shrink-0 text-sm font-bold tracking-tight"
+          className="shrink-0 text-lg font-extrabold tracking-wider text-[#E6008A] transition-opacity hover:opacity-80"
         >
-          MyWebsite
+          PARAS
         </Link>
 
-        <div className="hidden items-center gap-1 text-sm text-muted-foreground sm:flex">
+        {/* Menu Navigasi */}
+        <div className="hidden items-center gap-1 text-sm sm:flex">
           {links.map((link) => {
             const isActive =
               link.href === "/"
@@ -45,8 +47,10 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "rounded-full px-3 py-1.5 transition-colors hover:text-foreground",
-                  isActive && "bg-foreground/10 text-foreground"
+                  "rounded-full px-3.5 py-1.5 transition-colors font-medium",
+                  isActive
+                    ? "bg-[#E6008A] text-white shadow-sm" // Berubah jadi pink saat aktif
+                    : "text-muted-foreground hover:text-foreground hover:bg-black/5" // Tampilan default
                 )}
               >
                 {link.label}
@@ -55,6 +59,7 @@ export default function Navbar() {
           })}
         </div>
 
+        {/* Bagian Kanan (Sapaan, Favorite, dan Get in Touch) */}
         <div className="flex items-center gap-3">
           {/* Menampilkan sapaan nama jika form contact sudah disubmit */}
           {submitted && (
@@ -68,7 +73,7 @@ export default function Navbar() {
             href="/favorites"
             className={cn(
               buttonVariants({ size: "sm", variant: "secondary" }),
-              "rounded-full text-xs font-semibold"
+              "rounded-full text-xs font-semibold bg-[#E6008A] text-white hover:bg-[#E6008A]/90"
             )}
           >
             Favorite ({favorites.length})
@@ -77,7 +82,10 @@ export default function Navbar() {
           {/* Tombol Contact / Get in touch */}
           <Link
             href="/contact"
-            className={cn(buttonVariants({ size: "sm" }), "rounded-full")}
+            className={cn(
+              buttonVariants({ size: "sm" }),
+              "rounded-full bg-[#159038] text-white hover:bg-[#159038]/90"
+            )}
           >
             Get in touch
           </Link>
