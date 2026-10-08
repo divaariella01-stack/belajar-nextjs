@@ -1,14 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { createClient } from "../lib/supabase/client";
 import { useUser } from "../context/UserContext";
 import { useFavorite } from "../context/FavoriteContext";
 
 import { cn } from "../lib/utils";
 import { buttonVariants } from "../components/ui/button";
 
-// Menu navigasi utama (Login dihapus dari sini agar bisa diatur dinamis di bagian kanan)
 const links = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
@@ -21,12 +22,36 @@ const links = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { name, submitted } = useUser();
   const { favorites } = useFavorite();
+  
+  const [user, setUser] = useState(null);
+  const supabase = createClient();
 
-  // Cek apakah user sedang berada di halaman login atau sudah tersimpan sesi login-nya
-  // (Kamu bisa menyesuaikan kondisi di bawah ini sesuai dengan state login di project-mu)
-  const isLoginActive = pathname?.startsWith("/login");
+  // Cek status user yang sedang login dari Supabase
+  useEffect(() => {
+    async function checkUser() {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+    }
+    checkUser();
+
+    // Listener perubahan auth (misal saat login / logout)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
+
+  // Fungsi untuk Logout
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    router.push("/login");
+    router.refresh();
+  };
 
   return (
     <header className="sticky top-4 z-50 mx-auto w-full max-w-5xl px-4">
@@ -64,7 +89,7 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* Bagian Kanan (Sapaan, Favorite, Get in Touch, & Tombol Login/Logout) */}
+        {/* Bagian Kanan */}
         <div className="flex items-center gap-3">
           {submitted && (
             <span className="text-sm font-medium text-primary">
@@ -94,19 +119,27 @@ export default function Navbar() {
             Get in touch
           </Link>
 
-          {/* Tombol Login / Logout Dinamis */}
-          <Link
-            href="/login"
-            className={cn(
-              "rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors border",
-              isLoginActive
-                ? "bg-foreground text-background"
-                : "text-muted-foreground hover:text-foreground hover:bg-black/5"
-            )}
-          >
-            {/* Ganti teks ini atau sesuaikan kondisinya dengan status user */}
-            Login
-          </Link>
+          {/* Tombol Login / Logout Dinamis Berdasarkan Sesi Supabase */}
+          {user ? (
+            <button
+              onClick={handleLogout}
+              className="rounded-full bg-red-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-700"
+            >
+              Logout
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              className={cn(
+                "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+                pathname?.startsWith("/login")
+                  ? "bg-[#E6008A] text-white"
+                  : "text-muted-foreground hover:text-foreground hover:bg-black/5 border"
+              )}
+            >
+              Login
+            </Link>
+          )}
         </div>
       </nav>
     </header>
