@@ -30,25 +30,22 @@ export default function Navbar() {
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
-  // Mengecek sesi user saat komponen dimuat
   useEffect(() => {
-    async function getSession() {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
+    async function fetchUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
       setLoading(false);
     }
-    getSession();
+    fetchUser();
 
-    // Memantau perubahan status login / logout secara real-time
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase]);
+  }, [supabase, pathname]); // Ditambahkan pathname agar memperbarui sesi setiap kali pindah halaman
 
-  // Fungsi untuk Logout
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -122,10 +119,7 @@ export default function Navbar() {
             Get in touch
           </Link>
 
-          {/* Logika Tampilan Tombol: 
-              - Jika sedang loading, tampilkan placeholder / sembunyikan sebentar agar tidak kedip.
-              - Jika user ADA (sudah login) -> Tampilkan tombol Logout.
-              - Jika user TIDAK ADA (belum login) -> Tampilkan tombol Login. */}
+          {/* Tombol Login / Logout */}
           {!loading && (
             user ? (
               <button
