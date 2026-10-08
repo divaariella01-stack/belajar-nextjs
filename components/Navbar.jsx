@@ -8,6 +8,7 @@ import { useFavorite } from "../context/FavoriteContext";
 import { cn } from "../lib/utils";
 import { buttonVariants } from "../components/ui/button";
 
+// Menu navigasi utama (Login dihapus dari sini agar bisa diatur dinamis di bagian kanan)
 const links = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
@@ -16,13 +17,16 @@ const links = [
   { href: "/profile", label: "Profile" },
   { href: "/contact", label: "Contact" },
   { href: "/messages", label: "Messages" },
-  { href: "/login", label: "Login" },
 ];
 
 export default function Navbar() {
   const pathname = usePathname();
   const { name, submitted } = useUser();
   const { favorites } = useFavorite();
+
+  // Cek apakah user sedang berada di halaman login atau sudah tersimpan sesi login-nya
+  // (Kamu bisa menyesuaikan kondisi di bawah ini sesuai dengan state login di project-mu)
+  const isLoginActive = pathname?.startsWith("/login");
 
   return (
     <header className="sticky top-4 z-50 mx-auto w-full max-w-5xl px-4">
@@ -50,8 +54,8 @@ export default function Navbar() {
                 className={cn(
                   "rounded-full px-3.5 py-1.5 transition-colors font-medium",
                   isActive
-                    ? "bg-[#E6008A] text-white shadow-sm" // Berubah jadi pink saat aktif
-                    : "text-muted-foreground hover:text-foreground hover:bg-black/5" // Tampilan default
+                    ? "bg-[#E6008A] text-white shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-black/5"
                 )}
               >
                 {link.label}
@@ -60,9 +64,8 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* Bagian Kanan (Sapaan, Favorite, dan Get in Touch) */}
+        {/* Bagian Kanan (Sapaan, Favorite, Get in Touch, & Tombol Login/Logout) */}
         <div className="flex items-center gap-3">
-          {/* Menampilkan sapaan nama jika form contact sudah disubmit */}
           {submitted && (
             <span className="text-sm font-medium text-primary">
               Hi, {name} 👋
@@ -89,6 +92,20 @@ export default function Navbar() {
             )}
           >
             Get in touch
+          </Link>
+
+          {/* Tombol Login / Logout Dinamis */}
+          <Link
+            href="/login"
+            className={cn(
+              "rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors border",
+              isLoginActive
+                ? "bg-foreground text-background"
+                : "text-muted-foreground hover:text-foreground hover:bg-black/5"
+            )}
+          >
+            {/* Ganti teks ini atau sesuaikan kondisinya dengan status user */}
+            Login
           </Link>
         </div>
       </nav>
