@@ -24,18 +24,22 @@ export function FavoriteProvider({ children }) {
     fetchFavorites();
   }, []);
 
-  // Fungsi Menghapus Favorit sesuai screenshot
+  // Fungsi Menghapus Favorit yang disesuaikan agar fleksibel membaca id/user_id
   async function removeFavorite(userId) {
     const res = await fetch(`/api/favorites/${userId}`, { method: "DELETE" });
 
     if (res.ok) {
-      setFavorites((prev) => prev.filter((f) => f.user_id !== userId));
+      setFavorites((prev) => 
+        prev.filter((f) => String(f.id || f.user_id || f.app_users?.id) !== String(userId))
+      );
     }
   }
 
   // Fungsi Cek apakah sudah menjadi favorit
   const isFavorite = (userId) => {
-    return favorites.some((f) => f.user_id === userId);
+    return favorites.some((f) => 
+      String(f.id || f.user_id || f.app_users?.id) === String(userId)
+    );
   };
 
   // Fungsi Toggle Favorit (Tambah / Hapus)
@@ -47,10 +51,8 @@ export function FavoriteProvider({ children }) {
 
     try {
       if (exists) {
-        // Jika sudah ada, hapus menggunakan fungsi removeFavorite
         await removeFavorite(userId);
       } else {
-        // Jika belum ada, tambah ke API
         const res = await fetch("/api/favorites", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
