@@ -1,6 +1,7 @@
-import { supabase } from "../../../lib/supabase";
+import { createClient } from "../../../lib/supabase/server";
 
 export async function GET() {
+  const supabase = await createClient();
   const { data, error } = await supabase.from("favorites").select("*");
 
   if (error) {

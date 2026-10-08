@@ -16,6 +16,7 @@ const links = [
   { href: "/profile", label: "Profile" },
   { href: "/contact", label: "Contact" },
   { href: "/messages", label: "Messages" },
+  { href: "/login", label: "Login" },
 ];
 
 export default function Navbar() {

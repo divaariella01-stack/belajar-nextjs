@@ -24,40 +24,50 @@ export function FavoriteProvider({ children }) {
     fetchFavorites();
   }, []);
 
+  // Fungsi Menghapus Favorit sesuai screenshot
+  async function removeFavorite(userId) {
+    const res = await fetch(`/api/favorites/${userId}`, { method: "DELETE" });
+
+    if (res.ok) {
+      setFavorites((prev) => prev.filter((f) => f.user_id !== userId));
+    }
+  }
+
+  // Fungsi Cek apakah sudah menjadi favorit
+  const isFavorite = (userId) => {
+    return favorites.some((f) => f.user_id === userId);
+  };
+
   // Fungsi Toggle Favorit (Tambah / Hapus)
   const toggleFavorite = async (user) => {
     if (!user || !user.id) return;
 
-    const exists = favorites.some((item) => String(item.id) === String(user.id));
+    const userId = user.id;
+    const exists = isFavorite(userId);
 
     try {
       if (exists) {
-        // Jika sudah ada, hapus dari API
-        await fetch(`/api/favorites/${user.id}`, {
-          method: "DELETE",
-        });
+        // Jika sudah ada, hapus menggunakan fungsi removeFavorite
+        await removeFavorite(userId);
       } else {
         // Jika belum ada, tambah ke API
-        await fetch("/api/favorites", {
+        const res = await fetch("/api/favorites", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(user),
         });
+        
+        if (res.ok) {
+          await fetchFavorites();
+        }
       }
-
-      // Ambil ulang data favorit terbaru agar state selalu sinkron
-      await fetchFavorites();
     } catch (error) {
       console.error("Gagal memperbarui favorit di API:", error);
     }
   };
 
-  const isFavorite = (userId) => {
-    return favorites.some((item) => String(item.id) === String(userId));
-  };
-
   return (
-    <FavoriteContext.Provider value={{ favorites, toggleFavorite, isFavorite, fetchFavorites }}>
+    <FavoriteContext.Provider value={{ favorites, toggleFavorite, isFavorite, fetchFavorites, removeFavorite }}>
       {children}
     </FavoriteContext.Provider>
   );
