@@ -27,19 +27,22 @@ export default function Navbar() {
   const { favorites } = useFavorite();
   
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
-  // Cek status user yang sedang login dari Supabase
+  // Mengecek sesi user saat komponen dimuat
   useEffect(() => {
-    async function checkUser() {
+    async function getSession() {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
+      setLoading(false);
     }
-    checkUser();
+    getSession();
 
-    // Listener perubahan auth (misal saat login / logout)
+    // Memantau perubahan status login / logout secara real-time
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -119,26 +122,31 @@ export default function Navbar() {
             Get in touch
           </Link>
 
-          {/* Tombol Login / Logout Dinamis Berdasarkan Sesi Supabase */}
-          {user ? (
-            <button
-              onClick={handleLogout}
-              className="rounded-full bg-red-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-700"
-            >
-              Logout
-            </button>
-          ) : (
-            <Link
-              href="/login"
-              className={cn(
-                "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
-                pathname?.startsWith("/login")
-                  ? "bg-[#E6008A] text-white"
-                  : "text-muted-foreground hover:text-foreground hover:bg-black/5 border"
-              )}
-            >
-              Login
-            </Link>
+          {/* Logika Tampilan Tombol: 
+              - Jika sedang loading, tampilkan placeholder / sembunyikan sebentar agar tidak kedip.
+              - Jika user ADA (sudah login) -> Tampilkan tombol Logout.
+              - Jika user TIDAK ADA (belum login) -> Tampilkan tombol Login. */}
+          {!loading && (
+            user ? (
+              <button
+                onClick={handleLogout}
+                className="rounded-full bg-red-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-700"
+              >
+                Logout
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className={cn(
+                  "rounded-full px-4 py-1.5 text-sm font-medium transition-colors border",
+                  pathname?.startsWith("/login")
+                    ? "bg-[#E6008A] text-white border-transparent"
+                    : "text-muted-foreground hover:text-foreground hover:bg-black/5"
+                )}
+              >
+                Login
+              </Link>
+            )
           )}
         </div>
       </nav>
