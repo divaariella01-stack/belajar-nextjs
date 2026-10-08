@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { supabase } from "../../lib/supabase/client";
+import { createClient } from "../../lib/supabase/server";
 
 export async function submitContactForm(formData) {
   const name = formData.get("name");
@@ -11,6 +11,9 @@ export async function submitContactForm(formData) {
   if (!name || !email || !message) {
     return { success: false, error: "Semua field wajib diisi." };
   }
+
+  // Buat instance Supabase server client
+  const supabase = await createClient();
 
   // Masukkan data ke database Supabase
   const { error } = await supabase.from("messages").insert([
