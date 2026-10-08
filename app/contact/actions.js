@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { supabase } from "../../lib/supabase";
+import { supabase } from "../../lib/supabase/client";
 
 export async function submitContactForm(formData) {
   const name = formData.get("name");
